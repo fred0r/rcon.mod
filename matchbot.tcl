@@ -130,9 +130,9 @@ proc rconmsg {msg} {
   } elseif {[regexp {\"(.+)\" joined team \"(.+)\"} $msg all nk1 newteam]} {
     putrconchan "\002[parsename $nk1]\002 joined the $newteam team"
   } elseif {[regexp {\"(.+)\" disconnected} $msg all nk1]} {
-    putrconchan "[parsename $nk1] disconnected"
+    putrconchan "[parsename $nk1] [steamid $nk1] disconnected"
   } elseif {[regexp {\"(.+)\" connected, address \"(.+)\"} $msg all nk1 address]} {
-    putrconchan "\002[parsename $nk1]\002 <$address> connected"
+    putrconchan "\002[parsename $nk1]\002 [steamid $nk1] connected"
   } elseif {[regexp {\"(.+)\" entered the game} $msg all nk1]} {
     updatekills [serverid $nk1] 0
     updatedeaths [serverid $nk1] 0
@@ -177,6 +177,14 @@ proc serverid {name} {
     return $serverid
   } else {
     return "0"
+  }
+}
+
+proc steamid {name} {
+  if {[regexp {.+<[0-9]+><([^>]+)>} $name all auth]} {
+    return $auth
+  } else {
+    return ""
   }
 }
 
