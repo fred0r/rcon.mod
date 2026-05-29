@@ -27,6 +27,6 @@
 static int rcon_listen_port = 43456;
 
 // buffer size for UDP recv's
-const int RCON_BUFFER_SIZE = 65536;
+const int RCON_BUFFER_SIZE = 8192;
 
 #endif /* _EGG_MOD_RCON_RCON_H */
