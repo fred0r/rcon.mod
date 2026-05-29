@@ -199,6 +199,14 @@ proc putrconchan {msg} {
   dccputchan 1 $msg
 
   if {$matchchan != ""} {
+    set maxlen 400
+    while {[string length $msg] > $maxlen} {
+      set partial [string range $msg 0 $maxlen]
+      set idx [string last " " $partial]
+      if {$idx < 1} { set idx $maxlen }
+      putquick "PRIVMSG $matchchan :[string range $msg 0 [expr {$idx - 1}]]"
+      set msg [string trimleft [string range $msg $idx end]]
+    }
     putquick "PRIVMSG $matchchan :$msg"
   }
   
