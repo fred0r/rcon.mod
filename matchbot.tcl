@@ -65,7 +65,7 @@ proc set_logaddress {ip} {
   global srv_for_ip my-ip rcon-listen-port
   if {![info exists srv_for_ip($ip,host)]} return
   set srv_for_ip($ip,challenge) [challengercon $srv_for_ip($ip,host) $srv_for_ip($ip,port)]
-  set response [rcon $srv_for_ip($ip,host) $srv_for_ip($ip,port) $srv_for_ip($ip,challenge) "$srv_for_ip($ip,pass)" "logaddress ${my-ip} ${rcon-listen-port}"]
+  set response [rcon $srv_for_ip($ip,host) $srv_for_ip($ip,port) $srv_for_ip($ip,challenge) "$srv_for_ip($ip,pass)" "logaddress_add ${my-ip} ${rcon-listen-port}"]
 }
 
 # --- route incoming log lines ---
