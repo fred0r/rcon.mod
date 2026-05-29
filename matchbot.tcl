@@ -17,6 +17,7 @@ set challenge [challengercon $rhost $rport]
 set mb_teamsay 1
 set mb_say 1
 set mb_maxnamelength 15
+set mb_weaponstats 0
 
 array set kills {}
 array set deaths {}
@@ -26,7 +27,7 @@ bind rcon - * rconmsg
 
 proc rconmsg {msg} {
   global rhost rport my-ip
-  global mb_teamsay mb_say matchchan
+  global mb_teamsay mb_say mb_weaponstats matchchan
 
   regexp {log L [^ ]+ - [0-9]{2}:[0-9]{2}:[0-9]{2}: (.+)} $msg orig msg
 
@@ -127,6 +128,10 @@ proc rconmsg {msg} {
     updatedeaths $sid1 1
     
     putrconchan "[parsename $nk1] committed suicide with $txt"
+  } elseif {[regexp {\"(.+)\" triggered \"weaponstats\" \(weapon \"(.+)\"\) \(shots \"([0-9]+)\"\) \(hits \"([0-9]+)\"\) \(kills \"([0-9]+)\"\) \(headshots \"([0-9]+)\"\) \(tks \"([0-9]+)\"\) \(damage \"([0-9]+)\"\) \(deaths \"([0-9]+)\"} $msg all nk1 weapon shots hits kills headshots tks damage deaths] && $mb_weaponstats} {
+    putrconchan "[parsename $nk1] \00303$weapon\003 shots: $shots hits: $hits kills: $kills hs: $headshots dmg: $damage"
+  } elseif {[regexp {\"(.+)\" triggered \"weaponstats2\" \(weapon \"(.+)\"\) \(head \"([0-9]+)\"\) \(chest \"([0-9]+)\"\) \(stomach \"([0-9]+)\"\) \(leftarm \"([0-9]+)\"\) \(rightarm \"([0-9]+)\"\) \(leftleg \"([0-9]+)\"\) \(rightleg \"([0-9]+)\"} $msg all nk1 weapon head chest stomach larm rarm lleg rleg] && $mb_weaponstats} {
+    putrconchan "[parsename $nk1] \00303$weapon\003 head: $head chest: $chest stomach: $stomach la: $larm ra: $rarm ll: $lleg rl: $rleg"
   } elseif {[regexp {\"(.+)\" joined team \"(.+)\"} $msg all nk1 newteam]} {
     putrconchan "\002[parsename $nk1]\002 joined the $newteam team"
   } elseif {[regexp {\"(.+)\" disconnected} $msg all nk1]} {
@@ -278,7 +283,7 @@ proc getdeaths {sid} {
 
 proc matchbot {nickname ident handle channel argument } {
   global matchchan rhost rport challenge rconpass rcon-listen-port my-ip
-  global mb_say mb_teamsay mb_maxnamelength
+  global mb_say mb_teamsay mb_maxnamelength mb_weaponstats
 
   set cmd [lindex $argument 0]
   set args [lrange $argument 1 end]
@@ -299,7 +304,7 @@ proc matchbot {nickname ident handle channel argument } {
 
     getrconlog
     putquick "PRIVMSG $channel :Starting matchbot in \"$matchchan\""
-    putquick "PRIVMSG $channel :Parameters: (say $mb_say) (teamsay $mb_teamsay) (maxnamelength $mb_maxnamelength)"
+    putquick "PRIVMSG $channel :Parameters: (say $mb_say) (teamsay $mb_teamsay) (weaponstats $mb_weaponstats) (maxnamelength $mb_maxnamelength)"
   } elseif {$cmd == "set"} {
     set var [lindex $args 0]
     set val [lindex $args 1]
@@ -338,12 +343,25 @@ proc matchbot {nickname ident handle channel argument } {
 
         putquick "PRIVMSG $channel :Max name length was changed to $mb_maxnamelength"
       }
+    } elseif {$var == "weaponstats"} {
+      if {$val == ""} {
+        putquick "PRIVMSG $channel :Weaponstats display is set to $mb_weaponstats"
+      } else {
+        if {$val == "1" || $val == "on"} {
+          set mb_weaponstats 1
+        } else {
+          set mb_weaponstats 0
+        }
+
+        putquick "PRIVMSG $channel :Weaponstats display was changed to $mb_weaponstats"
+      }
     } else {
       putserv "NOTICE $nickname :Syntax: @matchbot set <cmd> \[on|off|value\]"
       putserv "NOTICE $nickname :Commands:"
       putserv "NOTICE $nickname :  maxnamelength \[#\]  :: Sets the max name length to \002\#\002, for display purposes"
       putserv "NOTICE $nickname :  say \[on|off\]  :: Sets the display of message mode 1 data \002on\002 or \002off\002"
       putserv "NOTICE $nickname :  teamsay \[on|off\]  :: Sets the display of message mode 2 data (team_say) \002on\002 or \002off\002"
+      putserv "NOTICE $nickname :  weaponstats \[on|off\]  :: Shows per-weapon stats on death"
     }
 
   } else {
