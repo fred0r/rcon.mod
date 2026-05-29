@@ -161,9 +161,9 @@ proc parsename {name} {
   
   if {[regexp {(.+)<([0-9]+)><([^>]+)><([A-Z]*)>} $name all nk sid auth team]} {
     if {[string compare $team "TERRORIST"] == 0} {
-      return [format "\00304%-${mb_maxnamelength}.${mb_maxnamelength}s\003 \[%-2d/%2d\]" $nk [getkills $sid] [getdeaths $sid]]
+      return [format "\00304%.${mb_maxnamelength}s\003 \[%-2d/%2d\]" $nk [getkills $sid] [getdeaths $sid]]
     } elseif {[string compare $team "CT"] == 0} {
-      return [format "\00312%-${mb_maxnamelength}.${mb_maxnamelength}s\003 \[%-2d/%2d\]" $nk [getkills $sid] [getdeaths $sid]]
+      return [format "\00312%.${mb_maxnamelength}s\003 \[%-2d/%2d\]" $nk [getkills $sid] [getdeaths $sid]]
     } else {
       return "$nk"
     }
