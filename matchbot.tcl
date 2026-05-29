@@ -22,9 +22,9 @@ array set srv_for_ip {}
 setudef flag matchbot
 setudef str matchbotip
 
-# --- auto-start servers from config list ---
+# --- store server credentials from config list ---
 proc init_servers {} {
-  global servers chan_for_ip srv_for_ip
+  global servers srv_for_ip
   foreach srv $servers {
     set ip [lindex $srv 0]
     set port [lindex $srv 1]
@@ -34,20 +34,17 @@ proc init_servers {} {
     set srv_for_ip($ip,port) $port
     set srv_for_ip($ip,pass) $pass
     if {$chan != ""} {
-      set chan_for_ip($ip) $chan
-      channel set $chan +matchbot
-      channel set $chan matchbotip $ip
-      set_logaddress $ip
-      putlog "Matchbot auto-started for $ip in $chan"
+      set srv_for_ip($ip,chan) $chan
     }
   }
 }
 init_servers
 
-# --- restore matchbot on reconnect ---
+# --- restore or auto-start matchbot on connect ---
 bind evnt - init-server restore_matchbot
 proc restore_matchbot {type} {
   global chan_for_ip srv_for_ip
+  # Restore from channel flags (set by @matchbot start)
   foreach chan [channels] {
     if {[channel get $chan matchbot]} {
       set ip [channel get $chan matchbotip]
@@ -55,6 +52,19 @@ proc restore_matchbot {type} {
         set chan_for_ip($ip) $chan
         set_logaddress $ip
         putlog "Matchbot restored for $ip in $chan"
+      }
+    }
+  }
+  # Auto-start servers from config that have a channel set
+  foreach ip [array names srv_for_ip] {
+    if {[info exists srv_for_ip($ip,chan)] && ![info exists chan_for_ip($ip)]} {
+      set chan $srv_for_ip($ip,chan)
+      if {[validchan $chan]} {
+        set chan_for_ip($ip) $chan
+        channel set $chan +matchbot
+        channel set $chan matchbotip $ip
+        set_logaddress $ip
+        putlog "Matchbot auto-started for $ip in $chan"
       }
     }
   }
