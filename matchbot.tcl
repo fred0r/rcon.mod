@@ -16,7 +16,7 @@ set matchchan ""
 set challenge [challengercon $rhost $rport]
 set mb_teamsay 1
 set mb_say 1
-set mb_maxnamelength 8
+set mb_maxnamelength 15
 set mb_weaponstats 0
 
 array set kills {}
