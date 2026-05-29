@@ -188,6 +188,14 @@ proc getrconlog {} {
 proc putrconchan {msg} {
   global matchchan
 
+  if {[string match "*<TERRORIST>*" $msg]} {
+    regsub -all {<TERRORIST>} $msg {} msg
+    set msg "\00304$msg\003"
+  } elseif {[string match "*<CT>*" $msg]} {
+    regsub -all {<CT>} $msg {} msg
+    set msg "\00312$msg\003"
+  }
+
   dccputchan 1 $msg
 
   if {$matchchan != ""} {
