@@ -51,7 +51,7 @@ proc rconmsg {msg} {
   if {[regexp {\"(.+)\" attacked \"(.+)\" with \"(.+)\" \(damage \"([0-9]+)\"\) \(damage_armor \"([0-9]+)\"\) \(health \"(.+)\"\) \(armor \"([0-9]+)\"\)} $msg all nk1 nk2 gun damage damage_armor health armor]} {
     # do nothing. ignore.
   } elseif { [regexp {^Rcon: .+$} $msg] } {
-      if {[regexp {Rcon: \"rcon .+ logaddress (.+) (.+)\" from \"(.+)\"} $msg all loghost logport address] && $loghost != ${my-ip}} {
+      if {[regexp {Rcon: \"rcon .+ logaddress (.+) (.+)\" from \"(.+)\"} $msg all loghost logport address] && ${my-ip} != "" && $loghost != ${my-ip}} {
           if {$matchchan == ""} {
               putrconchan "Uh oh...logaddress was changed to $loghost $logport by $address..."
           } else {
@@ -214,6 +214,10 @@ proc steamid {name} {
 
 proc getrconlog {} {
     global rhost rport challenge my-ip rcon-listen-port rconpass
+    if {${my-ip} == "" || ${my-ip} == "0.0.0.0"} {
+      putlog "Matchbot ERROR: my-ip is not set in eggdrop.conf"
+      return
+    }
     set response [myrcon "logaddress_add ${my-ip} ${rcon-listen-port}"]
 }
 
