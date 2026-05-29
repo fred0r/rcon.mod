@@ -353,38 +353,24 @@ static void eof_rcon_socket(int idx)
 static void rcon_socket(int idx, char *buf, int len)
 {
   char *buffer = NULL;
+  char *bufferptr = NULL;
   int actualsize;
-  struct sockaddr_in from;
-  socklen_t fromlen = sizeof(from);
-  char src_tag[64];
 
   buffer = (char *) nmalloc(RCON_BUFFER_SIZE);
   totalexpmem += RCON_BUFFER_SIZE;
-  actualsize = recvfrom(rconlistensock, buffer, RCON_BUFFER_SIZE, 0,
-                         (struct sockaddr *)&from, &fromlen);
+  actualsize = recv(rconlistensock, buffer, RCON_BUFFER_SIZE,0);
 
-  if (actualsize >= 6) {
-    char *tagged;
-    int taglen;
+  buffer[actualsize-2] = '\0';
 
-    buffer[actualsize-2] = '\0';
-    snprintf(src_tag, sizeof(src_tag), "%s:%d ",
-             inet_ntoa(from.sin_addr), ntohs(from.sin_port));
-    taglen = strlen(src_tag) + strlen(buffer + 4) + 1;
-    tagged = (char *) nmalloc(taglen);
-    totalexpmem += taglen;
-    strcpy(tagged, src_tag);
-    strcat(tagged, buffer + 4);
+  bufferptr = buffer + 4;
 
-    check_tcl_rcon(tagged);
+  check_tcl_rcon(bufferptr);
 
-    totalexpmem -= taglen;
-    nfree(tagged);
-  }
-
+  bufferptr = NULL;
   if (buffer) {
     totalexpmem -= RCON_BUFFER_SIZE;
     nfree(buffer);
+    buffer = NULL;
   }
 
 }
