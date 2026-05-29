@@ -23,6 +23,21 @@ array set kills {}
 array set deaths {}
 
 
+setudef flag matchbot
+
+bind evnt - init-server restore_matchbot
+proc restore_matchbot {type} {
+  global matchchan
+  foreach chan [channels] {
+    if {[channel get $chan matchbot]} {
+      set matchchan $chan
+      getrconlog
+      putlog "Matchbot restored in $matchchan"
+      break
+    }
+  }
+}
+
 bind rcon - * rconmsg
 
 proc rconmsg {msg} {
@@ -298,6 +313,7 @@ proc matchbot {nickname ident handle channel argument } {
   if {$cmd == "stop"} {
     clearqueue help
     putquick "PRIVMSG $channel :Stopped matchbot"
+    channel set $channel -matchbot
     set matchchan ""
   } elseif {$cmd == "start"} {
     if {$args != ""} {
@@ -306,6 +322,7 @@ proc matchbot {nickname ident handle channel argument } {
         set matchchan $channel
     }
 
+    channel set $channel +matchbot
     getrconlog
     putquick "PRIVMSG $channel :Starting matchbot in \"$matchchan\""
     putquick "PRIVMSG $channel :Parameters: (say $mb_say) (teamsay $mb_teamsay) (weaponstats $mb_weaponstats) (maxnamelength $mb_maxnamelength)"
