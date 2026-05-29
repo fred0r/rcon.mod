@@ -150,7 +150,7 @@ proc rconmsg {msg} {
 proc parsename {name} {
   global kills deaths mb_maxnamelength
   
-  if {[regexp {(.+)<([0-9]+)><[0-9]+><([A-Z]*)>} $name all nk sid team]} {
+  if {[regexp {(.+)<([0-9]+)><([^>]+)><([A-Z]*)>} $name all nk sid auth team]} {
     if {[string compare $team "TERRORIST"] == 0} {
       return [format "\00304%-${mb_maxnamelength}.${mb_maxnamelength}s\003 \[%-2d/%2d\]" $nk [getkills $sid] [getdeaths $sid]]
     } elseif {[string compare $team "CT"] == 0} {
@@ -164,7 +164,7 @@ proc parsename {name} {
 }
 
 proc team {name} {
-  if {[regexp {.+<[0-9]+><[0-9]+><([A-Z]*)>} $name all team]} {
+  if {[regexp {.+<[0-9]+><[^>]+><([A-Z]*)>} $name all team]} {
     return $team
   } else {
     return ""
@@ -173,7 +173,7 @@ proc team {name} {
 
 
 proc serverid {name} {
-  if {[regexp {.+<([0-9]+)><[0-9]+><[A-Z]*>} $name all serverid]} {
+  if {[regexp {.+<([0-9]+)><[^>]+><[A-Z]*>} $name all serverid]} {
     return $serverid
   } else {
     return "0"
