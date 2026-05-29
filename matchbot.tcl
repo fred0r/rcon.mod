@@ -104,6 +104,10 @@ proc rconmsg {msg} {
     }
   } elseif {[regexp {\"(.+)\" changed name to \"(.+)\"} $msg all nk1 nk2]} {
     putrconchan "[parsename $nk1] changed name to $nk2"
+  } elseif {[regexp {\"(.+)\" triggered \"time\" \(time \"(.+)\"} $msg all nk1 val]} {
+    putrconchan "[parsename $nk1] time: $val"
+  } elseif {[regexp {\"(.+)\" triggered \"latency\" \(ping \"(.+)\"} $msg all nk1 val]} {
+    putrconchan "[parsename $nk1] ping: $val"
   } elseif {[regexp {\"(.+)\" triggered \"(.+)\"} $msg all nk1 txt]} {
     if {[string compare $txt "Begin_Bomb_Defuse_With_Kit"] == 0} {
       putrconchan "[parsename $nk1] is defusing the bomb with a kit"
