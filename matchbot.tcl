@@ -4,7 +4,7 @@
 ## Channel is set via @matchbot start or here  ##
 #################################################
 
-set servers {
+set mb_servers {
     { "1.2.3.4" "27015" "blah" }
 }
 
@@ -24,8 +24,8 @@ setudef str matchbotip
 
 # --- store server credentials from config list ---
 proc init_servers {} {
-  global servers srv_for_ip
-  foreach srv $servers {
+  global mb_servers srv_for_ip
+  foreach srv $mb_servers {
     set ip [lindex $srv 0]
     set port [lindex $srv 1]
     set pass [lindex $srv 2]
@@ -332,7 +332,7 @@ proc getdeaths {sid} {
 }
 
 proc get_server_for_channel {chan} {
-  global servers srv_for_ip chan_for_ip
+  global mb_servers srv_for_ip chan_for_ip
   foreach ip [array names chan_for_ip] {
     if {$chan_for_ip($ip) == $chan} {
       return $ip
@@ -342,7 +342,7 @@ proc get_server_for_channel {chan} {
 }
 
 proc matchbot {nickname ident handle channel argument } {
-  global servers mb_say mb_teamsay mb_maxnamelength mb_weaponstats
+  global mb_servers mb_say mb_teamsay mb_maxnamelength mb_weaponstats
   global chan_for_ip srv_for_ip my-ip rcon-listen-port
 
   set cmd [lindex $argument 0]
